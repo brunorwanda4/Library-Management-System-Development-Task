@@ -5,12 +5,12 @@ USE Library_DB;
 
 CREATE TABLE Users (
  userId INT AUTO_INCREMENT PRIMARY KEY,
- userName VARCHAR(255),
+ userName VARCHAR(255) NOT NULL UNIQUE,
  password VARCHAR(255),
  role ENUM('librarian','assistant')
 );
 
-CREATE TABLE Memebers (
+CREATE TABLE Members (
 memberId INT AUTO_INCREMENT PRIMARY KEY,
  firstName VARCHAR(100),
  lastName VARCHAR(100),
@@ -32,7 +32,7 @@ CREATE TABLE Loans (
  loanId INT AUTO_INCREMENT PRIMARY KEY,
  mediaId INT NOT NULL,
  memberId INT NOT NULL,
- loanDate DATE,
+ loanDate DATE DEFAULT CURRENT_DATE,
  dueDate DATE,
  returnDate DATE NULL,
  FOREIGN KEY (mediaId) REFERENCES Media(mediaId),
