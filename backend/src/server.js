@@ -173,7 +173,6 @@ app.patch("/users/:id", async (req, res) => {
 
   db.query(q, queryParams, (uE, uR) => {
     if (uE) {
-      console.error("Database update error:", uE);
       return res
         .status(500)
         .json({ message: "Update error executing query", error: uE.message });
@@ -337,20 +336,17 @@ app.patch("/members/:id", (req, res) => {
   }
 });
 
-// ---------- members -----------
+// ---------- medias -----------
+
 app.post("/medias", (req, res) => {
   const { title, type, author, publisher, year, availableCopies } = req.body;
 
-  console.log("data:", req.body);
-
-    if (!title || !type || !author || !publisher || !year || !availableCopies) {
-      return res
-        .status(406)
-        .json({
-          message:
-            "title, type, author, publisher, year, availableCopies are required",
-        });
-    }
+  if (!title || !type || !author || !publisher || !year || !availableCopies) {
+    return res.status(406).json({
+      message:
+        "title, type, author, publisher, year, availableCopies are required",
+    });
+  }
 
   db.query(
     "INSERT INTO media (title, type, author, publisher, year, availableCopies) VALUES (?, ?, ?, ?, ? ,?)",
@@ -390,6 +386,108 @@ app.delete("/medias/:id", (req, res) => {
   });
 });
 
+app.patch("/medias/:id", (req, res) => {
+  const { id } = req.params;
+  const { title, type, author, publisher, year, availableCopies } = req.body;
+
+  const fields = [];
+  const params = [];
+
+  if (!title && !type && !author && !publisher && !year && !availableCopies) {
+    return res.status(400).json({
+      message:
+        "title, type, author, publisher, year, availableCopies are required",
+    });
+  }
+
+  if (title !== undefined) {
+    fields.push("title = ?");
+    params.push(title);
+  }
+
+  if (type !== undefined) {
+    fields.push("type = ?");
+    params.push(type);
+  }
+
+  if (author !== undefined) {
+    fields.push("author = ?");
+    params.push(author);
+  }
+
+  if (publisher !== undefined) {
+    fields.push("publisher = ?");
+    params.push(publisher);
+  }
+
+  if (year !== undefined) {
+    fields.push("year = ?");
+    params.push(year);
+  }
+
+  if (availableCopies !== undefined) {
+    fields.push("availableCopies = ?");
+    params.push(availableCopies);
+  }
+
+  if (fields.length === 0) {
+    return res.status(400).json({ message: "No valid fields to update" });
+  }
+
+  const q = "UPDATE media SET " + fields.join(", ") + " WHERE mediaId = ?";
+  params.push(+id);
+
+  db.query(q, params, (uE, uR) => {
+    if (uE) {
+      return res
+        .status(500)
+        .json({ message: "Update media error ", error: uE.message });
+    }
+
+    if (uR.affectedRows > 0) {
+      return res.status(200).json({ message: "Update media successful" });
+    } else {
+      return res.status(400).json({ message: "Can not update media" });
+    }
+  });
+});
+
+// ------------- Loans --------------
+
+app.post("/loans", (req, res) => {
+  const { mediaId, memberId, loanDate, dueDate } = req.body;
+
+  if (!mediaId || !memberId || !dueDate) {
+    return res.status(406).json({
+      message: "mediaId, memberId,dueDate are required",
+    });
+  }
+
+  db.query(
+    "INSERT INTO loans (mediaId, memberId, loanDate, dueDate) VALUES (?, ?, ?, ?)",
+    [mediaId, memberId, loanDate, dueDate],
+    (iE, iR) => {
+      if (iE)
+        return res
+          .status(500)
+          .json({ message: "insert loans Error", error: iE.message });
+
+      return res
+        .status(201)
+        .json({ message: " loans created successful", id: iR.insertId });
+    }
+  );
+});
+
+app.get("/loans", (req, res) => {
+  db.query("SELECT * FROM loans", (gE, gR) => {
+    if (gE)
+      return res
+        .status(500)
+        .json({ message: "Err to get loans", error: gE.message });
+    return res.status(200).json(gR);
+  });
+});
 
 
 
