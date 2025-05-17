@@ -368,6 +368,29 @@ app.post("/medias", (req, res) => {
   );
 });
 
+app.get("/medias", (req, res) => {
+  db.query("SELECT * FROM Media", (gE, gR) => {
+    if (gE)
+      return res
+        .status(500)
+        .json({ message: "Err to get Media", error: gE.message });
+    return res.status(200).json(gR);
+  });
+});
+
+app.delete("/medias/:id", (req, res) => {
+  const { id } = req.params;
+  db.query("DELETE FROM media WHERE mediaId = ?", [id], (dE, dR) => {
+    if (dE)
+      return res
+        .status(400)
+        .json({ message: "Delete member Error", error: dE.message });
+
+    return res.status(200).json({ message: "Delete member is successful" });
+  });
+});
+
+
 
 
 app.listen(3012, (e) => {
