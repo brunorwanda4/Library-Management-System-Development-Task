@@ -140,11 +140,6 @@ app.patch("/users/:id", async (req, res) => {
   const { id } = req.params;
   const { username, password } = req.body;
 
-  if (!username && !password)
-    return res
-      .status(406)
-      .json({ message: "Username or password are required" });
-
   const updateFields = [];
   const queryParams = [];
 
@@ -156,13 +151,20 @@ app.patch("/users/:id", async (req, res) => {
   if (password !== undefined) {
     updateFields.push("password = ?");
     try {
-      const hP = bcrypt.hash(password, 10);
+      const hP = await bcrypt.hash(password, 10);
       queryParams.push(hP);
-    } catch (error) {
-      return res
-        .status(500)
-        .json({ message: "hash password error", error: error.message });
+    } catch (hashError) {
+      return res.status(500).json({
+        message: "Error processing password",
+        error: hashError.message,
+      });
     }
+  }
+
+  if (updateFields.length === 0) {
+    return res.status(406).json({
+      message: "No valid fields (username, password) provided for update",
+    });
   }
 
   const q = "UPDATE users SET " + updateFields.join(", ") + " WHERE userId = ?";
@@ -170,15 +172,35 @@ app.patch("/users/:id", async (req, res) => {
   queryParams.push(+id);
 
   db.query(q, queryParams, (uE, uR) => {
-    if (uE)
+    if (uE) {
+      console.error("Database update error:", uE);
       return res
         .status(500)
-        .json({ message: "Update error", error: uE.message });
+        .json({ message: "Update error executing query", error: uE.message });
+    }
 
-    if (uR.length === 0)
-      return res.status(404).json({ message: "user not found" });
+    if (uR.affectedRows === 0)
+      return res
+        .status(404)
+        .json({ message: `user with id ${id} not found or no changes made` });
 
-    return res.status(200).json({ message: "Update successful" });
+    return res
+      .status(200)
+      .json({ message: `Update successful for user with id ${id}` });
+  });
+});
+
+app.delete("/users/:id", (req, res) => {
+  const { id } = req.params;
+
+  db.query("DELETE FROM users WHERE userId = ?", [id], (dE, dR) => {
+    if (dE)
+      return res
+        .status(500)
+        .json({ message: "delete user error", error: dE.message });
+    if (dR.length === 0)
+      return res.status(404).json({ message: "user don't exists" });
+    return res.status(200).json({ message: "delete user  successful" });
   });
 });
 
