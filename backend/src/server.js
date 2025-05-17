@@ -380,9 +380,9 @@ app.delete("/medias/:id", (req, res) => {
     if (dE)
       return res
         .status(400)
-        .json({ message: "Delete member Error", error: dE.message });
+        .json({ message: "Delete medias Error", error: dE.message });
 
-    return res.status(200).json({ message: "Delete member is successful" });
+    return res.status(200).json({ message: "Delete medias is successful" });
   });
 });
 
@@ -489,7 +489,17 @@ app.get("/loans", (req, res) => {
   });
 });
 
+app.delete("/loans/:id", (req, res) => {
+  const { id } = req.params;
+  db.query("DELETE FROM media WHERE loans = ?", [id], (dE, dR) => {
+    if (dE)
+      return res
+        .status(400)
+        .json({ message: "Delete loans Error", error: dE.message });
 
+    return res.status(200).json({ message: "Delete loans is successful" });
+  });
+});
 
 app.listen(3012, (e) => {
   if (e) throw e;
