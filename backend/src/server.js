@@ -283,42 +283,92 @@ app.patch("/members/:id", (req, res) => {
     fields.push("lastName = ?");
     params.push(lastName);
   }
+
   if (email !== undefined) {
-    db.query("SELECT * FROM members WHERE email = ?", [email], (gE, gR) => {
-      if (gE)
+    db.query(
+      "SELECT * FROM members WHERE email = ? AND memberId != ?",
+      [email, id],
+      (gE, gR) => {
+        if (gE) {
+          return res
+            .status(500)
+            .json({ message: "Get member error", error: gE.message });
+        }
+        if (gR.length > 0) {
+          return res.status(400).json({ message: "email is already exist" });
+        }
+
+        // Only proceed with the update if email doesn't exist
+        fields.push("email = ?");
+        params.push(email);
+        proceedWithUpdate();
+      }
+    );
+  } else {
+    proceedWithUpdate();
+  }
+
+  function proceedWithUpdate() {
+    if (phone !== undefined) {
+      fields.push("phone = ?");
+      params.push(phone);
+    }
+
+    if (fields.length === 0) {
+      return res.status(400).json({ message: "No valid fields to update" });
+    }
+
+    const q = "UPDATE members SET " + fields.join(", ") + " WHERE memberId = ?";
+    params.push(+id);
+
+    db.query(q, params, (uE, uR) => {
+      if (uE) {
         return res
           .status(500)
-          .json({ message: "Get member error", error: gE.message });
-      if (gR) return res.status(400).json({ message: "email is ready exist" });
+          .json({ message: "Update member error ", error: uE.message });
+      }
+
+      if (uR.affectedRows > 0) {
+        return res.status(200).json({ message: "Update members successful" });
+      } else {
+        return res.status(400).json({ message: "Can not update members" });
+      }
     });
-
-    fields.push("email = ?");
-    params.push(email);
   }
-  if (phone !== undefined) {
-    fields.push("phone = ?");
-    params.push(phone);
-  }
-
-  const q = "UPDATE members SET " + fields.join(", ") + " WHERE memberId = ?";
-
-  console.log("query :", q);
-  console.log("fields :", fields);
-  params.push(+id);
-
-  db.query(q, params, (uE, uR) => {
-    if (uE)
-      return res
-        .status(500)
-        .json({ message: "Update member error ", error: uE.message });
-
-    if (uR) {
-      return res.status(200).json({ message: "Update members successful" });
-    } else {
-      return res.status(400).json({ message: "Can not update members" });
-    }
-  });
 });
+
+// ---------- members -----------
+app.post("/medias", (req, res) => {
+  const { title, type, author, publisher, year, availableCopies } = req.body;
+
+  console.log("data:", req.body);
+
+    if (!title || !type || !author || !publisher || !year || !availableCopies) {
+      return res
+        .status(406)
+        .json({
+          message:
+            "title, type, author, publisher, year, availableCopies are required",
+        });
+    }
+
+  db.query(
+    "INSERT INTO media (title, type, author, publisher, year, availableCopies) VALUES (?, ?, ?, ?, ? ,?)",
+    [title, type, author, publisher, year, availableCopies],
+    (iE, iR) => {
+      if (iE)
+        return res
+          .status(500)
+          .json({ message: "insert media Error", error: iE.message });
+
+      return res
+        .status(201)
+        .json({ message: " media created successful", id: iR.insertId });
+    }
+  );
+});
+
+
 
 app.listen(3012, (e) => {
   if (e) throw e;
