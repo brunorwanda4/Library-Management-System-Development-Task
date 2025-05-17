@@ -204,6 +204,122 @@ app.delete("/users/:id", (req, res) => {
   });
 });
 
+// -------------- Members ----------
+
+app.post("/members", (req, res) => {
+  const { firstName, email, phone, lastName } = req.body;
+
+  if (!firstName || !email || !phone || !lastName) {
+    return res
+      .status(406)
+      .json({ message: "firstName , email , phone, lastName are required" });
+  }
+
+  db.query("SELECT * FROM Members WHERE email = ?", [email], (gE, gR) => {
+    if (gE)
+      return res
+        .status(500)
+        .json({ message: "get member Error", error: gE.message });
+    if (gR.length !== 0)
+      return res.status(400).json({ message: "email is ready exits" });
+
+    db.query(
+      "INSERT INTO members (firstName , email , phone, lastName) VALUES (?, ?, ?, ?)",
+      [firstName, email, phone, lastName],
+      (iE, iR) => {
+        if (iE)
+          return res
+            .status(500)
+            .json({ message: "insert member Error", error: iE.message });
+
+        return res
+          .status(201)
+          .json({ message: " member created successful", id: iR.insertId });
+      }
+    );
+  });
+});
+
+app.get("/members", (req, res) => {
+  db.query("SELECT * FROM members", (gE, gR) => {
+    if (gE)
+      return res
+        .status(500)
+        .json({ message: "Err to get members", error: gE.message });
+    return res.status(200).json(gR);
+  });
+});
+
+app.delete("/members/:id", (req, res) => {
+  const { id } = req.params;
+  db.query("DELETE FROM members WHERE memberId = ?", [id], (dE, dR) => {
+    if (dE)
+      return res
+        .status(400)
+        .json({ message: "Delete member Error", error: dE.message });
+
+    return res.status(200).json({ message: "Delete member is successful" });
+  });
+});
+
+app.patch("/members/:id", (req, res) => {
+  const { id } = req.params;
+  const { firstName, email, phone, lastName } = req.body;
+
+  const fields = [];
+  const params = [];
+
+  if (!firstName && !email && !phone && !lastName) {
+    return res
+      .status(400)
+      .json({ message: "firstName, email, phone, lastName are required" });
+  }
+
+  if (firstName !== undefined) {
+    fields.push("firstName = ?");
+    params.push(firstName);
+  }
+  if (lastName !== undefined) {
+    fields.push("lastName = ?");
+    params.push(lastName);
+  }
+  if (email !== undefined) {
+    db.query("SELECT * FROM members WHERE email = ?", [email], (gE, gR) => {
+      if (gE)
+        return res
+          .status(500)
+          .json({ message: "Get member error", error: gE.message });
+      if (gR) return res.status(400).json({ message: "email is ready exist" });
+    });
+
+    fields.push("email = ?");
+    params.push(email);
+  }
+  if (phone !== undefined) {
+    fields.push("phone = ?");
+    params.push(phone);
+  }
+
+  const q = "UPDATE members SET " + fields.join(", ") + " WHERE memberId = ?";
+
+  console.log("query :", q);
+  console.log("fields :", fields);
+  params.push(+id);
+
+  db.query(q, params, (uE, uR) => {
+    if (uE)
+      return res
+        .status(500)
+        .json({ message: "Update member error ", error: uE.message });
+
+    if (uR) {
+      return res.status(200).json({ message: "Update members successful" });
+    } else {
+      return res.status(400).json({ message: "Can not update members" });
+    }
+  });
+});
+
 app.listen(3012, (e) => {
   if (e) throw e;
   console.log("Server is running on port 3012");
