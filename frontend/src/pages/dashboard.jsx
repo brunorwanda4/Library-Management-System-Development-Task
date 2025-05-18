@@ -28,6 +28,7 @@ const Dashboard = () => {
           {/* users */}
           <Route element={<Users />} path="/Users" />
           <Route element={<AddUser />} path="/Users/add" />
+          {/* loars */}
         </Routes>
       </div>
     </div>

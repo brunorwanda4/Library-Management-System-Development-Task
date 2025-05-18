@@ -497,36 +497,53 @@ app.patch("/medias/:id", (req, res) => {
 app.post("/loans", (req, res) => {
   const { mediaId, memberId, loanDate, dueDate } = req.body;
 
-  if (!mediaId || !memberId || !dueDate) {
+  if (!mediaId || !memberId) {
     return res.status(406).json({
-      message: "mediaId, memberId,dueDate are required",
+      message: "mediaId, memberId, are required",
     });
   }
 
-  db.query(
-    "INSERT INTO loans (mediaId, memberId, loanDate, dueDate) VALUES (?, ?, ?, ?)",
-    [mediaId, memberId, loanDate, dueDate],
-    (iE, iR) => {
-      if (iE)
-        return res
-          .status(500)
-          .json({ message: "insert loans Error", error: iE.message });
+  const loanDateValue = loanDate || new Date();
 
-      return res
-        .status(201)
-        .json({ message: " loans created successful", id: iR.insertId });
+  db.query(
+    `INSERT INTO loans (mediaId, memberId, loanDate, dueDate)
+    VALUES (?, ?, ?, ?)`,
+    [mediaId, memberId, loanDateValue, dueDate],
+    (error, result) => {
+      if (error) {
+        console.error("Insert loan error:", error);
+        return res.status(500).json({
+          message: "Failed to create loan",
+          error: error.message,
+        });
+      }
+
+      return res.status(201).json({
+        message: "Loan created successfully",
+        loanId: result.insertId,
+      });
     }
   );
 });
 
 app.get("/loans", (req, res) => {
-  db.query("SELECT * FROM loans", (gE, gR) => {
-    if (gE)
-      return res
-        .status(500)
-        .json({ message: "Err to get loans", error: gE.message });
-    return res.status(200).json(gR);
-  });
+  db.query(
+    `SELECT 
+    loans.*,
+    members.*,
+    media.*
+    FROM loans
+    LEFT JOIN Media ON media.mediaId = loans.loanId
+    LEFT JOIN Members ON Members.memberId = loans.memberId
+    `,
+    (gE, gR) => {
+      if (gE)
+        return res
+          .status(500)
+          .json({ message: "Err to get loans", error: gE.message });
+      return res.status(200).json(gR);
+    }
+  );
 });
 
 app.delete("/loans/:id", (req, res) => {
