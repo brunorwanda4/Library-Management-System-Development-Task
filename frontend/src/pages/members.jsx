@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { BsPeople, BsPeopleFill, BsPlus } from "react-icons/bs";
+import DeleteMember from "../components/delete-member";
 import { NavLink } from "react-router-dom";
 
 const Members = () => {
@@ -53,7 +54,7 @@ const Members = () => {
                 <td>{item.email}</td>
                 <td>{item.phone}</td>
                 <td className=" flex flex-row gap-2 space-x-2">
-                  <button className=" btn btn-sm btn-error">Delete</button>
+                  <DeleteMember member={item} />
                   <NavLink
                     to={`/admin/members/edit/${item.memberId}`}
                     className="  btn btn-sm btn-warning"

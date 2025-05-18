@@ -9,14 +9,14 @@ const Dashboard = () => {
   return (
     <div className=" flex space-x-4 ">
       <Sidebar />
-     <div className=" p-4 w-full min-h-screen">
-         <Routes>
-        <Route element={<AdminPage />} path="/dashboard" />
-        <Route element={<Members />} path="/members" />
-        <Route element={<AddMember />} path="/members/add" />
-        <Route element={<EditMember />} path="/members/edit/:id" />
-      </Routes>
-     </div>
+      <div className=" p-4 w-full min-h-screen">
+        <Routes>
+          <Route element={<AdminPage />} path="/dashboard" />
+          <Route element={<Members />} path="/members" />
+          <Route element={<AddMember />} path="/members/add" />
+          <Route element={<EditMember />} path="/members/edit/:id" />
+        </Routes>
+      </div>
     </div>
   );
 };

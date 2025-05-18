@@ -25,7 +25,7 @@ const LoginPage = () => {
           if (req.data.token && req.data.user) {
             localStorage.setItem("auth_token", req.data.token);
             localStorage.setItem("user", req.data.user);
-            redirect("/dashboard");
+            redirect("/admin/dashboard");
           }
         } else {
           setErr(req.data.message || "Something went wrong.");
@@ -45,7 +45,10 @@ const LoginPage = () => {
           Welcome Back 👋🏾
         </h2>
         {err && <div className=" alert alert-error">😔 {err}</div>}
-        <div className=" flex flex-col w-full space-y-4">
+        <div className=" flex flex-col w-full space-y-2">
+          <label htmlFor="username" className=" label">
+            username
+          </label>
           <input
             value={fD.username}
             onChange={handleChange}
@@ -56,6 +59,9 @@ const LoginPage = () => {
             disabled={isPending}
             required
           />
+          <label htmlFor="password" className=" label">
+            Password
+          </label>
           <input
             className=" w-full input"
             type="password"
@@ -67,7 +73,7 @@ const LoginPage = () => {
             required
           />
         </div>
-        <button disabled={isPending} className=" btn btn-primary">
+        <button disabled={isPending} className=" btn btn-secondary">
           Login {isPending && <span className=" loading loading-spinner" />}
         </button>
       </form>

@@ -5,7 +5,7 @@ import ProtectedRouters from "./pages/protect-routers";
 const App = () => {
   return (
     <BrowserRouter>
-      <main className=" min-h-screen bg-base-200">
+      <main className=" w-full min-h-screen bg-base-200">
         <Routes>
           <Route path="/" element={<LoginPage />} />
           <Route element={<ProtectedRouters />}>
