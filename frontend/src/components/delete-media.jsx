@@ -3,45 +3,45 @@ import axios from "axios";
 
 const DeleteMedia = ({ media }) => {
   const [isPending, startTransition] = useTransition();
+  const modalId = `delete_modal_${media.mediaId}`;
 
   const handleDelete = () => {
     startTransition(async () => {
       try {
         await axios.delete(`http://localhost:3012/medias/${media.mediaId}`);
       } catch (err) {
-        console.log("Delete media error:", err);
+        console.error("Delete media error:", err);
       }
     });
   };
 
   return (
     <div>
-      <label htmlFor="delete_modal" className="btn btn-sm btn-error">
+      <label htmlFor={modalId} className="btn btn-sm btn-error">
         Delete
       </label>
 
-      <input type="checkbox" id="delete_modal" className="modal-toggle" />
-      <dialog id="delete_modal" className="modal">
+      <input type="checkbox" id={modalId} className="modal-toggle" />
+
+      <dialog id={modalId} className="modal">
         <div className="modal-box">
           <h3 className="font-bold text-lg">Delete Media</h3>
           <p className="py-4">
-            Are you sure you want to delete {" "}
-            <span className="font-semibold">
-              {media?.title}
-            </span>{" "}
+            Are you sure you want to delete{" "}
+            <span className="font-semibold">{media?.title}</span>?<br />
             This will remove all associated data.
           </p>
 
           <div className="modal-action">
-            <label htmlFor="delete_modal" className="btn">
+            <label htmlFor={modalId} className="btn">
               Cancel
             </label>
             <label
-              htmlFor="delete_modal"
+              htmlFor={modalId}
               onClick={handleDelete}
               className={`btn btn-error ${isPending ? "btn-disabled" : ""}`}
             >
-              {isPending ? "Deleting..." : "Delete"}
+              {isPending ? "Deleting..." : "Confirm Delete"}
             </label>
           </div>
         </div>
