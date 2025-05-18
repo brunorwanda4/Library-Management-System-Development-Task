@@ -9,6 +9,8 @@ import AddMedias from "./add-medias";
 import EditMedia from "./edit-media";
 import Users from "./users";
 import AddUser from "./add-users";
+import Loans from "./loans";
+import AddLoans from "./add-loans";
 
 const Dashboard = () => {
   return (
@@ -21,14 +23,13 @@ const Dashboard = () => {
           <Route element={<Members />} path="/members" />
           <Route element={<AddMember />} path="/members/add" />
           <Route element={<EditMember />} path="/members/edit/:id" />
-          {/* medias */}
           <Route element={<Medias />} path="/medias" />
           <Route element={<AddMedias />} path="/medias/add" />
           <Route element={<EditMedia />} path="/medias/edit/:id" />
-          {/* users */}
           <Route element={<Users />} path="/Users" />
           <Route element={<AddUser />} path="/Users/add" />
-          {/* loars */}
+          <Route element={<Loans />} path="/loans" />
+          <Route element={<AddLoans />} path="/loans/add" />
         </Routes>
       </div>
     </div>
