@@ -57,8 +57,8 @@ const Loans = () => {
           </thead>
           <tbody>
             {loans.map((loan) => (
-              <tr key={loan.mediaId}>
-                <td>{loan.mediaId}</td>
+              <tr key={loan.loanId}>
+                <td>{loan.loanId}</td>
                 <td>
                   {loan.firstName} {loan.lastName}
                 </td>

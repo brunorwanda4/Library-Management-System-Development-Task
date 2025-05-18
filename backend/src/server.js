@@ -496,7 +496,6 @@ app.patch("/medias/:id", (req, res) => {
 
 app.post("/loans", (req, res) => {
   const { mediaId, memberId, loanDate, dueDate } = req.body;
-
   if (!mediaId || !memberId) {
     return res.status(406).json({
       message: "mediaId, memberId, are required",
@@ -527,24 +526,44 @@ app.post("/loans", (req, res) => {
 });
 
 app.get("/loans", (req, res) => {
-  db.query(
-    `SELECT 
-    loans.*,
-    members.*,
-    media.*
-    FROM loans
-    LEFT JOIN Media ON media.mediaId = loans.loanId
-    LEFT JOIN Members ON Members.memberId = loans.memberId
-    `,
-    (gE, gR) => {
-      if (gE)
-        return res
-          .status(500)
-          .json({ message: "Err to get loans", error: gE.message });
-      return res.status(200).json(gR);
+  const sql = `
+    SELECT 
+      Loans.loanId,
+      Loans.loanDate,
+      Loans.dueDate,
+      Loans.returnDate,
+
+      Members.memberId,
+      Members.firstName,
+      Members.lastName,
+      Members.email,
+      Members.phone,
+
+      Media.mediaId,
+      Media.title,
+      Media.type,
+      Media.author,
+      Media.publisher,
+      Media.year,
+      Media.availableCopies
+
+    FROM Loans
+    LEFT JOIN Members ON Loans.memberId = Members.memberId
+    LEFT JOIN Media ON Loans.mediaId = Media.mediaId
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      return res.status(500).json({
+        message: "Error fetching loans",
+        error: err.message
+      });
     }
-  );
+
+    res.status(200).json(results);
+  });
 });
+
 
 app.delete("/loans/:id", (req, res) => {
   const { id } = req.params;
