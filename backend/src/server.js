@@ -138,6 +138,19 @@ app.get("/users", (req, res) => {
   });
 });
 
+app.get("/users/:id", (req, res) => {
+  const { id } = req.params;
+  db.query("SELECT * FROM Users WHERE userId = ?", [id], (gE, gR) => {
+    if (gE)
+      return res
+        .status(500)
+        .json({ message: "Get users Err", error: gE.message });
+    if (gR.length <= 0)
+      return res.status(404).json({ message: "user don't exit" });
+    return res.status(200).json(gR);
+  });
+});
+
 app.get("/users", (req, res) => {
   db.query("SELECT * FROM Users", (gE, gR) => {
     if (gE)
@@ -556,14 +569,13 @@ app.get("/loans", (req, res) => {
     if (err) {
       return res.status(500).json({
         message: "Error fetching loans",
-        error: err.message
+        error: err.message,
       });
     }
 
     res.status(200).json(results);
   });
 });
-
 
 app.delete("/loans/:id", (req, res) => {
   const { id } = req.params;
