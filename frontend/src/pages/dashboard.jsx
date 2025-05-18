@@ -7,6 +7,8 @@ import EditMember from "./edit-member";
 import Medias from "./medias";
 import AddMedias from "./add-medias";
 import EditMedia from "./edit-media";
+import Users from "./users";
+import AddUser from "./add-users";
 
 const Dashboard = () => {
   return (
@@ -15,12 +17,17 @@ const Dashboard = () => {
       <div className=" p-4 w-full min-h-screen">
         <Routes>
           <Route element={<AdminPage />} path="/dashboard" />
+          {/* members */}
           <Route element={<Members />} path="/members" />
           <Route element={<AddMember />} path="/members/add" />
           <Route element={<EditMember />} path="/members/edit/:id" />
+          {/* medias */}
           <Route element={<Medias />} path="/medias" />
           <Route element={<AddMedias />} path="/medias/add" />
           <Route element={<EditMedia />} path="/medias/edit/:id" />
+          {/* users */}
+          <Route element={<Users />} path="/Users" />
+          <Route element={<AddUser />} path="/Users/add" />
         </Routes>
       </div>
     </div>

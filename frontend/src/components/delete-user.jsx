@@ -1,14 +1,14 @@
 import { useTransition } from "react";
 import axios from "axios";
 
-const DeleteMedia = ({ media }) => {
+const DeleteUser = ({ user }) => {
   const [isPending, startTransition] = useTransition();
-  const modalId = `delete_modal_${media?.mediaId}`;
+  const modalId = `delete_modal_${user?.userId}`;
 
   const handleDelete = () => {
     startTransition(async () => {
       try {
-        await axios.delete(`http://localhost:3012/medias/${media.mediaId}`);
+        await axios.delete(`http://localhost:3012/users/${user.userId}`);
       } catch (err) {
         console.error("Delete media error:", err);
       }
@@ -25,13 +25,12 @@ const DeleteMedia = ({ media }) => {
 
       <dialog id={modalId} className="modal">
         <div className="modal-box">
-          <h3 className="font-bold text-lg">Delete Media</h3>
+          <h3 className="font-bold text-lg">Delete User</h3>
           <p className="py-4">
             Are you sure you want to delete{" "}
-            <span className="font-semibold">{media?.title}</span>?<br />
+            <span className="font-semibold">{user?.userName}</span>?<br />
             This will remove all associated data.
           </p>
-
           <div className="modal-action">
             <label htmlFor={modalId} className="btn">
               Cancel
@@ -50,4 +49,4 @@ const DeleteMedia = ({ media }) => {
   );
 };
 
-export default DeleteMedia;
+export default DeleteUser;

@@ -21,7 +21,7 @@ const AddMember = () => {
     e.preventDefault();
 
     setErr("");
-    setErr("");
+    setSuccess("");
     startTransition(async () => {
       try {
         const req = await axios.post("http://localhost:3012/members", fD);
