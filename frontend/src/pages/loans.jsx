@@ -4,6 +4,7 @@ import { BsPlus } from "react-icons/bs";
 import { FaPeopleArrows } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
 import DeleteMedia from "../components/delete-media";
+import DeleteLoan from "../components/delete-loan";
 
 const Loans = () => {
   const [loans, setLoans] = useState([]);
@@ -77,7 +78,7 @@ const Loans = () => {
                 <td>{loan.returnDate || "NOT"}</td>
                 <td>
                   <div className="flex gap-2">
-                    <DeleteMedia media={loan} />
+                    <DeleteLoan loan={loan} />
                     <NavLink
                       to={`/admin/medias/edit/${loan.mediaId}`}
                       className="btn btn-sm btn-warning"

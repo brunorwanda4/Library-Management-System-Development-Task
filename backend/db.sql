@@ -40,6 +40,6 @@ CREATE TABLE
         loanDate DATE DEFAULT CURRENT_DATE,
         dueDate DATE NULL,
         returnDate DATE NULL,
-        FOREIGN KEY (mediaId) REFERENCES Media (mediaId),
-        FOREIGN KEY (memberId) REFERENCES Members (memberId)
+        FOREIGN KEY (mediaId) REFERENCES Media (mediaId) ON DELETE CASCADE,
+        FOREIGN KEY (memberId) REFERENCES Members (memberId) ON DELETE CASCADE
     )

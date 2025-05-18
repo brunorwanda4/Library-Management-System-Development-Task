@@ -567,7 +567,7 @@ app.get("/loans", (req, res) => {
 
 app.delete("/loans/:id", (req, res) => {
   const { id } = req.params;
-  db.query("DELETE FROM media WHERE loans = ?", [id], (dE, dR) => {
+  db.query("DELETE FROM loans WHERE loanId = ?", [id], (dE, dR) => {
     if (dE)
       return res
         .status(400)
