@@ -4,6 +4,8 @@ import Sidebar from "../components/side-bar";
 import AdminPage from "./admin-page";
 import AddMember from "./add-member";
 import EditMember from "./edit-member";
+import Medias from "./medias";
+import AddMedias from "./add-medias";
 
 const Dashboard = () => {
   return (
@@ -15,6 +17,8 @@ const Dashboard = () => {
           <Route element={<Members />} path="/members" />
           <Route element={<AddMember />} path="/members/add" />
           <Route element={<EditMember />} path="/members/edit/:id" />
+          <Route element={<Medias />} path="/medias" />
+          <Route element={<AddMedias />} path="/medias/add" />
         </Routes>
       </div>
     </div>

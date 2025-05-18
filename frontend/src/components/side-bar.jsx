@@ -46,9 +46,9 @@ const Sidebar = () => {
           <FaBook size={24} /> Medias
         </NavLink>
         <NavLink
-          to={"/admin/medias"}
+          to={"/admin/users"}
           className={` btn  justify-start w-full ${
-            isActive("/admin/medias") ? " btn-secondary" : " btn-ghost"
+            isActive("/admin/users") ? " btn-secondary" : " btn-ghost"
           }`}
         >
           <BsPeople size={24} /> Users
