@@ -91,8 +91,10 @@ app.post("/login", (req, res) => {
       return res
         .status(500)
         .json({ message: "Get user Err", error: gE.message });
-    if (gR === 0)
+
+    if (gR.length <= 0) {
       return res.status(404).json({ message: "username not found" });
+    }
 
     const user = gR[0];
 
@@ -123,6 +125,16 @@ app.post("/login", (req, res) => {
           .json({ message: "Password are not match", why: cR });
       }
     });
+  });
+});
+
+app.get("/users", (req, res) => {
+  db.query("SELECT * FROM Users", (gE, gR) => {
+    if (gE)
+      return res
+        .status(500)
+        .json({ message: "Get users Err", error: gE.message });
+    return res.status(200).json(gR);
   });
 });
 
@@ -246,6 +258,20 @@ app.get("/members", (req, res) => {
         .status(500)
         .json({ message: "Err to get members", error: gE.message });
     return res.status(200).json(gR);
+  });
+});
+
+app.get("/members/:id", (req, res) => {
+  const { id } = req.params;
+
+  db.query("SELECT * FROM members WHERE memberId = ?", [id], (gE, gR) => {
+    if (gE)
+      return res
+        .status(500)
+        .json({ message: "Err to get members", error: gE.message });
+    if (gR.length < 0) return res.status(404).json({ message: "Id not found" });
+
+    return res.status(200).json(gR[0]);
   });
 });
 
@@ -505,3 +531,12 @@ app.listen(3012, (e) => {
   if (e) throw e;
   console.log("Server is running on port 3012");
 });
+
+// members data :
+
+// {
+//   "firstName" : "mugisha",
+//   "lastName" : "happy",
+//   "email" : "bruno@gmail.com",
+//   "phone" : "07888647"
+// }
