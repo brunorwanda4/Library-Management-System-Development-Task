@@ -1,9 +1,9 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { BsPlus } from "react-icons/bs";
-import DeleteMember from "../components/delete-member";
 import { NavLink } from "react-router-dom";
 import { FaBook } from "react-icons/fa";
+import DeleteMedia from "../components/delete-media";
 
 const Medias = () => {
   const [medias, setMedias] = useState([]);
@@ -66,7 +66,7 @@ const Medias = () => {
               <td>{item.year}</td>
               <td>{item.availableCopies}</td>
               <td className="flex flex-row gap-2">
-                <DeleteMember member={item} />
+                <DeleteMedia media={item} />
                 <NavLink
                   to={`/admin/medias/edit/${item.mediaId}`}
                   className="btn btn-sm btn-warning"

@@ -1,7 +1,8 @@
 import axios from "axios";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
+import { useParams } from "react-router-dom";
 
-const AddMedias = () => {
+const EditMedia = () => {
   const [formData, setFormData] = useState({
     title: "",
     type: "",
@@ -13,11 +14,36 @@ const AddMedias = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isPending, startTransition] = useTransition();
+  const [media, setMedia] = useState({});
+  const { id } = useParams();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+
+  useEffect(() => {
+    startTransition(async () => {
+      try {
+        const req = await axios.get(`http://localhost:3012/medias/${id}`);
+        if (req.status === 200) {
+          const d = req.data;
+          setMedia(d);
+          setFormData({
+            title: d.title || "",
+            type: d.type || "",
+            author: d.author || "",
+            publisher: d.publisher || "",
+            year: d.year || "",
+            availableCopies: d.availableCopies || "",
+          });
+        }
+      } catch (error) {
+        const message = error.response?.data?.message || "Server error";
+        setError(message);
+      }
+    });
+  }, [id]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -26,11 +52,11 @@ const AddMedias = () => {
 
     startTransition(async () => {
       try {
-        const response = await axios.post(
-          "http://localhost:3012/medias",
+        const response = await axios.patch(
+          `http://localhost:3012/medias/${media.mediaId}`,
           formData
         );
-        if (response.status === 201 && response.data.message) {
+        if (response.status === 200 && response.data.message) {
           setSuccess(response.data.message);
         }
       } catch (err) {
@@ -43,8 +69,7 @@ const AddMedias = () => {
   return (
     <div className="grid place-content-center h-screen">
       <form onSubmit={handleSubmit} className="space-y-4 min-w-96 c">
-        <h2 className="text-center font-bold text-2xl">Add New Media</h2>
-
+        <h2 className="text-center font-bold text-2xl">Update Media</h2>
         {error && <div className="alert alert-error">😔 {error}</div>}
         {success && <div className="alert alert-success">🌻 {success}</div>}
 
@@ -104,7 +129,7 @@ const AddMedias = () => {
           disabled={isPending}
           className="btn btn-secondary"
         >
-          Create New Media{" "}
+          update Media
           {isPending && <span className="loading loading-spinner" />}
         </button>
       </form>
@@ -112,4 +137,4 @@ const AddMedias = () => {
   );
 };
 
-export default AddMedias;
+export default EditMedia;

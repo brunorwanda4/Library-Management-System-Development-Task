@@ -6,6 +6,7 @@ import AddMember from "./add-member";
 import EditMember from "./edit-member";
 import Medias from "./medias";
 import AddMedias from "./add-medias";
+import EditMedia from "./edit-media";
 
 const Dashboard = () => {
   return (
@@ -19,6 +20,7 @@ const Dashboard = () => {
           <Route element={<EditMember />} path="/members/edit/:id" />
           <Route element={<Medias />} path="/medias" />
           <Route element={<AddMedias />} path="/medias/add" />
+          <Route element={<EditMedia />} path="/medias/edit/:id" />
         </Routes>
       </div>
     </div>

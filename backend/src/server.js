@@ -400,6 +400,20 @@ app.get("/medias", (req, res) => {
   });
 });
 
+app.get("/medias/:id", (req, res) => {
+  const { id } = req.params;
+
+  db.query("SELECT * FROM Media WHERE mediaId = ?", [id], (gE, gR) => {
+    if (gE)
+      return res
+        .status(500)
+        .json({ message: "Err to get Media", error: gE.message });
+    if (gR.length < 0) return res.status(404).json({ message: "Id not found" });
+
+    return res.status(200).json(gR[0]);
+  });
+});
+
 app.delete("/medias/:id", (req, res) => {
   const { id } = req.params;
   db.query("DELETE FROM media WHERE mediaId = ?", [id], (dE, dR) => {
