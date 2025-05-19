@@ -107,7 +107,7 @@ app.post("/login", (req, res) => {
       if (cR) {
         const token = jwt.sign(
           {
-            username: user.username,
+            username: user.userName,
             role: user.role,
             id: user.userId,
           },

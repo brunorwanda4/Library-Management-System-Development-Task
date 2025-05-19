@@ -1,6 +1,6 @@
 import React from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { BsGrid, BsPeople, BsPeopleFill } from "react-icons/bs";
+import { BsGrid, BsPeople, BsPeopleFill, BsPerson } from "react-icons/bs";
 import { FaBook, FaPeopleArrows } from "react-icons/fa";
 import { IoIosLogOut } from "react-icons/io";
 import useAuth from "../hooks/useAuth";
@@ -8,7 +8,7 @@ import useAuth from "../hooks/useAuth";
 
 const Sidebar = () => {
   const location = useLocation();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
 
   const isActive = (path) => location.pathname === path;
 
@@ -62,12 +62,23 @@ const Sidebar = () => {
           </NavLink>
         </div>
       </div>
-      <button
-        onClick={logout}
-        className=" btn text-error btn-ghost w-full justify-start"
-      >
-        <IoIosLogOut size={24} /> Logout{" "}
-      </button>
+      <div>
+        <NavLink
+          to={"/admin/profile"}
+          className={` btn  items-center justify-start w-full ${
+            isActive("/admin/profile") ? " btn-secondary" : " btn-ghost"
+          }`}
+        >
+          <BsPerson size={24} />{" "}
+          <span className=" capitalize font-medium">{user?.username}</span>
+        </NavLink>
+        <button
+          onClick={logout}
+          className=" btn text-error btn-ghost w-full justify-start"
+        >
+          <IoIosLogOut size={24} /> Logout{" "}
+        </button>
+      </div>
     </aside>
   );
 };
