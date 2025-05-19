@@ -210,7 +210,7 @@ app.patch("/users/:id", async (req, res) => {
 
     return res
       .status(200)
-      .json({ message: `Update successful for user with id ${id}` });
+      .json({ message: `Update successful` });
   });
 });
 

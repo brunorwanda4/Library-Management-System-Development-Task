@@ -11,6 +11,7 @@ import Users from "./users";
 import AddUser from "./add-users";
 import Loans from "./loans";
 import AddLoans from "./add-loans";
+import UpdateProfile from "./update-profile";
 
 const Dashboard = () => {
   return (
@@ -30,6 +31,7 @@ const Dashboard = () => {
           <Route element={<AddUser />} path="/Users/add" />
           <Route element={<Loans />} path="/loans" />
           <Route element={<AddLoans />} path="/loans/add" />
+          <Route element={<UpdateProfile />} path="/profile" />
         </Routes>
       </div>
     </div>
