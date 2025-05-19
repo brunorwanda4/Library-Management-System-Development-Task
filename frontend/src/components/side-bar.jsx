@@ -7,6 +7,10 @@ import {
   BsPerson,
   BsList,
   BsX,
+  BsGraphUp,
+  BsBook,
+  BsClockHistory,
+  BsPersonCheck
 } from "react-icons/bs";
 import { FaBook, FaPeopleArrows } from "react-icons/fa";
 import { IoIosLogOut } from "react-icons/io";
@@ -87,6 +91,44 @@ const Sidebar = () => {
               onClick={() => setIsMobileOpen(false)}
             >
               <BsPeople size={20} /> <span className="ml-2">Users</span>
+            </NavLink>
+            {/* Reports Section */}
+            <div className="divider">Reports</div>
+            <NavLink
+              to={"/admin/reports"}
+              className={`btn justify-start w-full ${
+                isActive("/admin/reports") ? "btn-secondary" : "btn-ghost"
+              }`}
+              onClick={() => setIsMobileOpen(false)}
+            >
+              <BsGraphUp size={20} /> <span className="ml-2">Reports Dashboard</span>
+            </NavLink>
+            <NavLink
+              to={"/admin/reports/most-borrowed"}
+              className={`btn justify-start w-full ${
+                isActive("/admin/reports/most-borrowed") ? "btn-secondary" : "btn-ghost"
+              }`}
+              onClick={() => setIsMobileOpen(false)}
+            >
+              <BsBook size={20} /> <span className="ml-2">Most Borrowed</span>
+            </NavLink>
+            <NavLink
+              to={"/admin/reports/overdue"}
+              className={`btn justify-start w-full ${
+                isActive("/admin/reports/overdue") ? "btn-secondary" : "btn-ghost"
+              }`}
+              onClick={() => setIsMobileOpen(false)}
+            >
+              <BsClockHistory size={20} /> <span className="ml-2">Overdue Loans</span>
+            </NavLink>
+            <NavLink
+              to={"/admin/reports/member-activity"}
+              className={`btn justify-start w-full ${
+                isActive("/admin/reports/member-activity") ? "btn-secondary" : "btn-ghost"
+              }`}
+              onClick={() => setIsMobileOpen(false)}
+            >
+              <BsPersonCheck size={20} /> <span className="ml-2">Member Activity</span>
             </NavLink>
           </div>
         </div>

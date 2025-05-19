@@ -208,9 +208,7 @@ app.patch("/users/:id", async (req, res) => {
         .status(404)
         .json({ message: `user with id ${id} not found or no changes made` });
 
-    return res
-      .status(200)
-      .json({ message: `Update successful` });
+    return res.status(200).json({ message: `Update successful` });
   });
 });
 
@@ -589,16 +587,219 @@ app.delete("/loans/:id", (req, res) => {
   });
 });
 
+// ------------ Reports API --------------
+
+/**
+ * @api {get} /reports/most-borrowed-media Get Most Borrowed Media
+ * @apiDescription Returns media items sorted by most frequently borrowed
+ * @apiGroup Reports
+ * @apiParam {Number} [limit=10] Limit the number of results
+ */
+app.get("/reports/most-borrowed-media", (req, res) => {
+  const limit = parseInt(req.query.limit) || 10;
+
+  const sql = `
+    SELECT 
+      m.mediaId,
+      m.title,
+      m.type,
+      m.author,
+      COUNT(l.loanId) AS borrowCount
+    FROM Media m
+    LEFT JOIN Loans l ON m.mediaId = l.mediaId
+    GROUP BY m.mediaId
+    ORDER BY borrowCount DESC
+    LIMIT ?
+  `;
+
+  db.query(sql, [limit], (err, results) => {
+    if (err) {
+      return res.status(500).json({
+        message: "Error generating most borrowed media report",
+        error: err.message,
+      });
+    }
+    res.status(200).json(results);
+  });
+});
+
+/**
+ * @api {get} /reports/overdue-loans Get Overdue Loans
+ * @apiDescription Returns all currently overdue loans
+ * @apiGroup Reports
+ */
+app.get("/reports/overdue-loans", (req, res) => {
+  const currentDate = new Date().toISOString().split("T")[0];
+
+  const sql = `
+    SELECT 
+      l.loanId,
+      l.dueDate,
+      l.loanDate,
+      m.firstName,
+      m.lastName,
+      m.email,
+      m.phone,
+      med.title,
+      med.author
+    FROM Loans l
+    JOIN Members m ON l.memberId = m.memberId
+    JOIN Media med ON l.mediaId = med.mediaId
+    WHERE l.returnDate IS NULL 
+    AND l.dueDate < ?
+    ORDER BY l.dueDate ASC
+  `;
+
+  db.query(sql, [currentDate], (err, results) => {
+    if (err) {
+      return res.status(500).json({
+        message: "Error generating overdue loans report",
+        error: err.message,
+      });
+    }
+    res.status(200).json(results);
+  });
+});
+
+/**
+ * @api {get} /reports/member-activity Get Member Activity
+ * @apiDescription Returns members with their loan activity
+ * @apiGroup Reports
+ * @apiParam {Number} [days=30] Time period to analyze (in days)
+ */
+app.get("/reports/member-activity", (req, res) => {
+  const days = parseInt(req.query.days) || 30;
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - days);
+
+  const sql = `
+    SELECT 
+      m.memberId,
+      m.firstName,
+      m.lastName,
+      m.email,
+      COUNT(l.loanId) AS loansCount,
+      MAX(l.loanDate) AS lastLoanDate
+    FROM Members m
+    LEFT JOIN Loans l ON m.memberId = l.memberId
+      AND l.loanDate >= ?
+    GROUP BY m.memberId
+    ORDER BY loansCount DESC
+  `;
+
+  db.query(sql, [cutoffDate], (err, results) => {
+    if (err) {
+      return res.status(500).json({
+        message: "Error generating member activity report",
+        error: err.message,
+      });
+    }
+    res.status(200).json(results);
+  });
+});
+
+/**
+ * @api {get} /reports/media-availability Get Media Availability
+ * @apiDescription Returns availability status of all media items
+ * @apiGroup Reports
+ */
+app.get("/reports/media-availability", (req, res) => {
+  const sql = `
+    SELECT 
+      m.mediaId,
+      m.title,
+      m.author,
+      m.availableCopies,
+      COUNT(l.loanId) AS currentlyBorrowed,
+      (m.availableCopies - COUNT(l.loanId)) AS availableNow
+    FROM Media m
+    LEFT JOIN Loans l ON m.mediaId = l.mediaId
+      AND l.returnDate IS NULL
+    GROUP BY m.mediaId
+    ORDER BY availableNow ASC
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      return res.status(500).json({
+        message: "Error generating media availability report",
+        error: err.message,
+      });
+    }
+    res.status(200).json(results);
+  });
+});
+
+/**
+ * @api {get} /reports/loan-history Get Loan History
+ * @apiDescription Returns complete loan history with filters
+ * @apiGroup Reports
+ * @apiParam {String} [startDate] Start date filter (YYYY-MM-DD)
+ * @apiParam {String} [endDate] End date filter (YYYY-MM-DD)
+ * @apiParam {Number} [memberId] Filter by specific member
+ * @apiParam {Number} [mediaId] Filter by specific media item
+ */
+app.get("/reports/loan-history", (req, res) => {
+  const { startDate, endDate, memberId, mediaId } = req.query;
+
+  let sql = `
+    SELECT 
+      l.loanId,
+      l.loanDate,
+      l.dueDate,
+      l.returnDate,
+      m.memberId,
+      m.firstName AS memberFirstName,
+      m.lastName AS memberLastName,
+      med.mediaId,
+      med.title AS mediaTitle,
+      med.author AS mediaAuthor
+    FROM Loans l
+    JOIN Members m ON l.memberId = m.memberId
+    JOIN Media med ON l.mediaId = med.mediaId
+  `;
+
+  const conditions = [];
+  const params = [];
+
+  if (startDate) {
+    conditions.push("l.loanDate >= ?");
+    params.push(startDate);
+  }
+
+  if (endDate) {
+    conditions.push("l.loanDate <= ?");
+    params.push(endDate);
+  }
+
+  if (memberId) {
+    conditions.push("l.memberId = ?");
+    params.push(memberId);
+  }
+
+  if (mediaId) {
+    conditions.push("l.mediaId = ?");
+    params.push(mediaId);
+  }
+
+  if (conditions.length > 0) {
+    sql += " WHERE " + conditions.join(" AND ");
+  }
+
+  sql += " ORDER BY l.loanDate DESC";
+
+  db.query(sql, params, (err, results) => {
+    if (err) {
+      return res.status(500).json({
+        message: "Error generating loan history report",
+        error: err.message,
+      });
+    }
+    res.status(200).json(results);
+  });
+});
+
 app.listen(3012, (e) => {
   if (e) throw e;
   console.log("Server is running on port 3012");
 });
-
-// members data :
-
-// {
-//   "firstName" : "mugisha",
-//   "lastName" : "happy",
-//   "email" : "bruno@gmail.com",
-//   "phone" : "07888647"
-// }
