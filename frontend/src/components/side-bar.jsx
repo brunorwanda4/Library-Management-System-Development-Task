@@ -92,8 +92,6 @@ const Sidebar = () => {
             >
               <BsPeople size={20} /> <span className="ml-2">Users</span>
             </NavLink>
-            {/* Reports Section */}
-            <div className="divider">Reports</div>
             <NavLink
               to={"/admin/reports"}
               className={`btn justify-start w-full ${
